@@ -104,7 +104,20 @@ if st.button("Run Extraction"):
             continue
         for tbl_index, tbl in enumerate(tables_md, start=1):
             lines = [ln.strip() for ln in tbl.split("\n") if ln.strip() and not re.match(r"^\|[- :]+\|$", ln.strip())]
-            headers = [h.strip() for h in lines[0].strip("|").split("|")]
+            raw_headers = [h.strip() for h in lines[0].strip("|").split("|")]
+            headers = []
+            counts = {}
+            headers = []
+            counts = {}
+            for h in raw_headers:
+                if not h:
+                    h = "Unnamed"
+                if h in counts:
+                    counts[h] += 1
+                    headers.append(f"{h} ({counts[h]})")
+                else:
+                    counts[h] = 1
+                    headers.append(h)
             rows = [[c.strip() for c in row.strip("|").split("|")] for row in lines[1:]]
             df = pd.DataFrame(rows, columns=headers)
             df = df.applymap(lambda v: f"'{v}" if isinstance(v, str) and re.match(r"^\(\s*\d", v.strip()) else v)
